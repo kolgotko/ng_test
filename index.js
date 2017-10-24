@@ -71,7 +71,7 @@ spawnSync('ifconfig', [
 ]);
 
 
-for (let i = 3; i != 29; i++) {
+for (let i = 3; i < 32; i++) {
 
     spawnSync('ngctl', [
         'shutdown',
