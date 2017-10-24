@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-const eth = 'wlan0';
 const jsonQuery = require('json-query');
-const { spawnSync } = require('child_process');
+const randomMac = require('random-mac');
+const { spawnSync, spawn } = require('child_process');
+
+let eth = '';
 
 if (!eth) {
 
@@ -19,6 +21,8 @@ if (!eth) {
         '[address-family=Internet].rt-entry[destination=default]',
         { data: out }
     ).value;
+
+    console.log(ethIfo);
 
     eth = ethIfo['interface-name'];
 
@@ -61,25 +65,48 @@ spawnSync('ngctl', [
     'link1',
 ]);
 
-spawnSync('ngctl', [
-    'mkpeer',
-    'switch:',
-    'eiface',
-    'link2',
-    'ether',
-]);
-
 spawnSync('ifconfig', [
     eth,
     'delete'
 ]);
 
-spawnSync('ifconfig', [
-    'ngeth0',
-    'up',
-]);
 
-spawnSync('dhclient', [
-    'ngeth0',
-]);
+for (let i = 3; i != 29; i++) {
+
+    spawnSync('ngctl', [
+        'shutdown',
+        `ngeth${i}:`,
+    ]);
+
+    spawnSync('ngctl', [
+        'mkpeer',
+        'switch:',
+        'eiface',
+        `link${i}`,
+        'ether',
+    ]);
+
+    let newEthInfo = spawnSync('ngctl', [
+        'show',
+        '-n',
+        `switch:link${i}`,
+    ]).stdout.toString();
+
+    console.log(newEthInfo);
+
+    let newEth = newEthInfo.match(/Name\:\s*(\w+)\s/);
+    newEth = newEth[1];
+
+    spawnSync('ifconfig', [
+        newEth,
+        'ether',
+        randomMac(),
+        'up',
+    ]);
+
+    spawn('dhclient', [
+        newEth,
+    ]);
+
+}
 
