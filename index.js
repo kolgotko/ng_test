@@ -10,6 +10,7 @@ if (!eth) {
 
     let out = spawnSync('netstat', [
         '-r',
+        '-4',
         '--libxo',
         'json',
     ]).stdout.toString();
@@ -71,7 +72,7 @@ spawnSync('ifconfig', [
 ]);
 
 
-for (let i = 3; i < 4; i++) {
+for (let i = 3; i < 6; i++) {
 
     spawnSync('ngctl', [
         'mkpeer',
