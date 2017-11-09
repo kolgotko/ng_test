@@ -74,11 +74,6 @@ spawnSync('ifconfig', [
 for (let i = 3; i < 4; i++) {
 
     spawnSync('ngctl', [
-        'shutdown',
-        `ngeth${i}:`,
-    ]);
-
-    spawnSync('ngctl', [
         'mkpeer',
         'switch:',
         'eiface',
